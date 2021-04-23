@@ -6,10 +6,7 @@ import com.hackerrank.orm.exceptions.NotFoundException;
 import com.hackerrank.orm.model.Item;
 import com.hackerrank.orm.repository.ItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,10 +31,13 @@ public class ItemService {
         }
     }
 
-    public Item updateItem(Item itemData) {
-        Optional<Item> persistedItem = itemRepository.findById(itemData.getItemId());
+    public Item updateItem(Item itemData, Integer itemId) {
+        Optional<Item> persistedItem = itemRepository.findById(itemId);
 
         if (persistedItem.isPresent()) {
+            if (itemData.getItemId() == 0) {
+                itemData.setItemId(itemId);
+            }
             return itemRepository.saveAndFlush(itemData);
         } else {
             throw new NotFoundException();
@@ -48,7 +48,7 @@ public class ItemService {
         Optional<Item> persistedItem = itemRepository.findById(itemId);
 
         if (persistedItem.isPresent()) {
-            itemRepository.delete(persistedItem.get());
+            itemRepository.deleteById(itemId);
         } else {
             throw new NotFoundException();
         }
@@ -58,7 +58,7 @@ public class ItemService {
         itemRepository.deleteAll();
     }
 
-    public Item getItemById(Integer itemId) {
+    public Item getItemById(int itemId) {
         Optional<Item> persistedItem = itemRepository.findById(itemId);
 
         if (persistedItem.isPresent()) {
@@ -72,12 +72,12 @@ public class ItemService {
         return itemRepository.findAll();
     }
 
-    public List<Item> getItemsByStatusAndEnteredBy(String itemStatus, String enteredBy) {
-        return itemRepository.getItemsByItemStatusAndItemEnteredByUser(itemStatus, enteredBy);
+    public List<Item> getItemsByStatusAndEnteredBy(ItemStatus itemStatus, String enteredBy) {
+        return itemRepository.findByItemStatusAndItemEnteredByUser(itemStatus, enteredBy);
     }
 
-    public Page<Item> getSortedPagedItemList(Integer pageSize, Integer page, String sortByField) {
-        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(sortByField));
-        return itemRepository.findAll(pageable);
+    public List<Item> getSortedPagedItemList(Integer pageSize, Integer page, String sortByField) {
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sortByField));
+        return itemRepository.findAll(pageable).toList();
     }
 }
