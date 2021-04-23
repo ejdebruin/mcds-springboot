@@ -1,11 +1,11 @@
 package com.hackerrank.orm.controller;
 
-import com.hackerrank.orm.enums.ItemStatus;
 import com.hackerrank.orm.exceptions.BadRequestException;
 import com.hackerrank.orm.exceptions.NotFoundException;
 import com.hackerrank.orm.model.Item;
 import com.hackerrank.orm.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -92,6 +92,12 @@ public class ItemController {
 
 
     //8. select all with sorting and pagination ?pageSize={pageSize}&page={page}&sortBy={sortBy} GET
-    //@GetMapping(value = "/app/item", produces = {"application/json"})
-
+    @GetMapping(value = "/app/item", produces = {"application/json"})
+    public ResponseEntity<Page<Item>> getSortedPagedItemList(
+            @RequestParam(value = "pageSize") final Integer pageSize,
+            @RequestParam(value = "page") final Integer page,
+            @RequestParam(value = "sortByField") final String sortByField
+    ) {
+        return new ResponseEntity<>(itemService.getSortedPagedItemList(pageSize, page, sortByField), HttpStatus.OK);
+    }
 }

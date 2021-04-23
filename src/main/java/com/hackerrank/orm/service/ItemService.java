@@ -6,6 +6,10 @@ import com.hackerrank.orm.exceptions.NotFoundException;
 import com.hackerrank.orm.model.Item;
 import com.hackerrank.orm.repository.ItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,5 +74,10 @@ public class ItemService {
 
     public List<Item> getItemsByStatusAndEnteredBy(String itemStatus, String enteredBy) {
         return itemRepository.getItemsByItemStatusAndItemEnteredByUser(itemStatus, enteredBy);
+    }
+
+    public Page<Item> getSortedPagedItemList(Integer pageSize, Integer page, String sortByField) {
+        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(sortByField));
+        return itemRepository.findAll(pageable);
     }
 }
